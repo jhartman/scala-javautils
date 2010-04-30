@@ -18,6 +18,7 @@ package org.scala_tools.javautils.s2j
 
 import java.lang.{Iterable => JIterable}
 import java.util.{Iterator => JIterator}
+import org.scala_tools.javautils.Implicits
 
 trait SIterableWrapper[T] extends JIterable[T] with SWrapper {
   type Wrapped <: Iterable[T]

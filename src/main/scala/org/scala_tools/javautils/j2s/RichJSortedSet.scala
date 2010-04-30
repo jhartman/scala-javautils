@@ -20,7 +20,10 @@ import java.util.SortedSet
 import scala.collection.{SortedSet => SSortedSet}
 import org.scala_tools.javautils.s2j.SSortedSetWrapper
 
-class RichJSortedSet[T](set: SortedSet[T]) {
+class RichJSortedSet[T](set: SortedSet[T]) extends HigherOrderCollectionFunctions[T, java.util.SortedSet] {
+  override def getNewCollection[V] = new java.util.TreeSet[V]()
+  override def getIterator: java.util.Iterator[T] = set.iterator
+
   def asScala: SSortedSet[T] = set match {
     case sw: SSortedSetWrapper[_] =>
       sw.asScala.asInstanceOf[SSortedSet[T]]

@@ -16,13 +16,51 @@
  **/
 package org.scala_tools.javautils.j2s
 
-import java.util.Map
 import scala.collection.{Map => SMap}
 import scala.collection.mutable.{Map => SMutableMap}
-import scala.Function.untupled
 import org.scala_tools.javautils.s2j.{SMapWrapper, SMutableMapWrapper}
+import java.util.{Collection, HashMap, Map, Iterator}
+import JImplicits._
 
-class RichJMap[K, V](map: Map[K, V]) {
+
+
+class RichJMap[K, V](map: Map[K, V]) extends MapHigherOrderFunctions[K, V, Map] {
+  def getNewCollection[U, W]: Map[U, W] = {
+    val mapClass = map.getClass.asInstanceOf[Class[Map[U, W]]]
+    mapClass.newInstance
+  }
+
+  def getIterator: Iterator[(K, V)] = {
+    val entrySetIterator = map.entrySet.iterator
+    new Iterator[(K, V)] {
+      def hasNext: Boolean = entrySetIterator.hasNext
+
+      def next: (K, V) = {
+        val entry = entrySetIterator.next
+        (entry.getKey, entry.getValue)
+      }
+
+      def remove: Unit = throw new UnsupportedOperationException
+    }
+  }
+
+  def +(kv: (K, V)): Map[K, V] = {
+    map.put(kv._1, kv._2)
+    map
+  }
+
+  // Scala iterable
+  def ++(kvs: Iterable[(K, V)]): Map[K, V] = {
+    kvs.foreach(kv => map.put(kv._1, kv._2))
+    map
+  }
+
+  //Java iterable
+  def ++(kvs: java.lang.Iterable[(K, V)]): Map[K, V] = {
+    ++(kvs.asScala)
+  }
+
+
   def asScala: SMap[K, V] = map match {
     case mw: SMapWrapper[_, _] =>
       mw.asScala.asInstanceOf[SMap[K, V]]
@@ -31,7 +69,7 @@ class RichJMap[K, V](map: Map[K, V]) {
       val underlying = RichJMap.this.map
     }
   }
-  
+
   def asScalaMutable: SMutableMap[K, V] = map match {
     case mmw: SMutableMapWrapper[_, _] =>
       mmw.asScala.asInstanceOf[SMutableMap[K, V]]
@@ -40,13 +78,4 @@ class RichJMap[K, V](map: Map[K, V]) {
       val underlying = RichJMap.this.map
     }
   }
-
-  def foreach(fn: Tuple2[K, V] => Unit): Unit =
-    foreach(untupled(fn))
-
-  def foreach(fn: (K, V) => Unit): Unit =
-    Implicits.RichJIterator(map.entrySet.iterator).foreach { entry =>
-      val (key, value) = (entry.getKey, entry.getValue)
-      fn(key, value)
-    }
 }

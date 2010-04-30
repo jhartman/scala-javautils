@@ -17,12 +17,18 @@
 package org.scala_tools.javautils.j2s
 
 import java.lang.Iterable
+import java.util.Iterator
 import scala.{Iterable => SIterable}
 import org.scala_tools.javautils.s2j.SIterableWrapper
+import org.scala_tools.javautils.Implicits
 
-class RichJIterable[T](iterable: Iterable[T]) {
-  def foreach(fn: T => Unit): Unit =
-    Implicits.RichJIterator(iterable.iterator).foreach(fn)
+class RichJIterable[T](iterable: Iterable[T]) extends HigherOrderCollectionFunctions[T, java.util.Collection] {
+  override def getNewCollection[V] = {
+    val iterableClass = iterable.getClass.asInstanceOf[Class[java.util.Collection[V]]]
+    iterableClass.newInstance
+  }
+  
+  override def getIterator: java.util.Iterator[T] = iterable.iterator
 
   def asScala: SIterable[T] = iterable match {
     case iw: SIterableWrapper[_] =>

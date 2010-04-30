@@ -21,7 +21,10 @@ import scala.collection.{Set => SSet}
 import scala.collection.mutable.{Set => SMutableSet}
 import org.scala_tools.javautils.s2j.{SSetWrapper, SMutableSetWrapper}
 
-class RichJSet[T](set: Set[T]) {
+class RichJSet[T](set: Set[T]) extends HigherOrderCollectionFunctions[T, java.util.Set] {
+  override def getNewCollection[V] = new java.util.HashSet[V]()
+  override def getIterator: java.util.Iterator[T] = set.iterator
+  
   def asScala: SSet[T] = set match {
     case sw: SSetWrapper[_] =>
       sw.asScala.asInstanceOf[SSet[T]]

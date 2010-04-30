@@ -16,14 +16,13 @@
  **/
 package org.scala_tools.javautils.j2s
 
-import java.util.Iterator
 import scala.{Iterator => SIterator}
 import org.scala_tools.javautils.s2j.SIteratorWrapper
+import java.util.{ArrayList, Iterator}
 
-class RichJIterator[T](iterator: Iterator[T]) {
-  def foreach(fn: T => Unit): Unit =
-    while (iterator.hasNext)
-      fn(iterator.next)
+class RichJIterator[T](iterator: Iterator[T]) extends HigherOrderCollectionFunctions[T, ArrayList] {
+  override def getNewCollection[V]: ArrayList[V] = new ArrayList[V]()
+  override def getIterator: Iterator[T] = iterator
 
   def asScala: SIterator[T] = iterator match {
     case iw: SIteratorWrapper[_] =>

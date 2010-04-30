@@ -16,6 +16,8 @@
  **/
 package org.scala_tools.javautils.s2j
 
+import org.scala_tools.javautils.Wrapper
+
 trait SWrapper extends Wrapper {
   protected val wrapperType = "Java"
   def asScala: Wrapped = underlying

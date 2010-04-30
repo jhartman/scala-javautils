@@ -19,7 +19,14 @@ package org.scala_tools.javautils.j2s
 import java.util.List
 import org.scala_tools.javautils.s2j.{SSeqWrapper, SRandomAccessSeqMutableWrapper}
 
-class RichJList[T](list: List[T]) {
+class RichJList[T](list: List[T]) extends HigherOrderCollectionFunctions[T, java.util.List] {
+  override def getNewCollection[V] = {
+    val listClass = list.getClass.asInstanceOf[Class[List[V]]]
+    listClass.newInstance
+  }
+  
+  override def getIterator: java.util.Iterator[T] = list.iterator
+
   def asScala: Seq[T] = list match {
     case sw: SSeqWrapper[_] =>
       sw.asScala.asInstanceOf[Seq[T]]
@@ -28,7 +35,7 @@ class RichJList[T](list: List[T]) {
       val underlying = list
     }
   }
-  
+
   def asScalaMutable: RandomAccessSeq.Mutable[T] = list match {
     case msw: SRandomAccessSeqMutableWrapper[_] =>
       msw.asScala.asInstanceOf[RandomAccessSeq.Mutable[T]]

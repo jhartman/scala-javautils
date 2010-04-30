@@ -20,7 +20,13 @@ import java.util.Collection
 import scala.{Iterable => SIterable, Collection => SCollection}
 import org.scala_tools.javautils.s2j.SCollectionWrapper
 
-class RichJCollection[T](collection: Collection[T]) {
+class RichJCollection[T](collection: Collection[T]) extends HigherOrderCollectionFunctions[T, java.util.Collection] {
+  override def getNewCollection[V] = {
+    val collectionClass = collection.getClass.asInstanceOf[Class[Collection[V]]]
+    collectionClass.newInstance
+  }
+  override def getIterator: java.util.Iterator[T] = collection.iterator
+  
   def asScala: SCollection[T] = collection match {
     case cw: SCollectionWrapper[_] =>
       cw.asScala.asInstanceOf[SCollection[T]]
