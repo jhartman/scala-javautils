@@ -18,14 +18,38 @@ package org.scala_tools.javautils.j2s
 
 import java.util.List
 import org.scala_tools.javautils.s2j.{SSeqWrapper, SRandomAccessSeqMutableWrapper}
+import java.lang.reflect.Constructor
 
 class RichJList[T](list: List[T]) extends HigherOrderCollectionFunctions[T, java.util.List] {
   override def getNewCollection[V] = {
-    val listClass = list.getClass.asInstanceOf[Class[List[V]]]
-    listClass.newInstance
+
+    val listClass = list.getClass
+
+    if(hasPublicConstructor(listClass.getConstructors, 0))
+      listClass.asInstanceOf[Class[List[V]]].newInstance
+    else
+      new java.util.ArrayList[V]
+  }
+
+  final def hasPublicConstructor(constructors: Array[Constructor[_]], index: Int): Boolean = {
+    if(index >= constructors.length)
+      false
+    else {
+      val constructor = constructors(index)
+      if(constructor.getParameterTypes.length == 0)
+        true
+      else
+        hasPublicConstructor(constructors, index+1)
+    }
   }
   
   override def getIterator: java.util.Iterator[T] = list.iterator
+
+  // I think if we allow a cons with V >: T we'll have to copy everything over
+  def ::(that : T): java.util.List[T] = {
+    list.add(0, that)
+    list
+  }
 
   def asScala: Seq[T] = list match {
     case sw: SSeqWrapper[_] =>
