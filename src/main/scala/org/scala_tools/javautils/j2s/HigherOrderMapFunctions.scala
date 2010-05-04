@@ -18,7 +18,7 @@ package org.scala_tools.javautils.j2s
  **/
 
 import java.util.{Collection, HashMap, Map}
-import JImplicits._
+import org.scala_tools.javautils.Implicits._
 
 
 //Still looking for a way to unify with the collection higher order functions
@@ -65,6 +65,7 @@ trait MapHigherOrderFunctions[T, V, CollectionType[X, Y] <: java.util.Map[X, Y]]
   def foldLeft[U](initial: U)(fn: (U, (T, V)) => U): U = {
     foldLeft0(getIterator, fn, initial)
   }
+
 
   def filter(pred: (T, V) => Boolean): CollectionType[T, V] = {
     val iterator = getIterator

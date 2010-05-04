@@ -20,7 +20,7 @@ import scala.collection.{Map => SMap}
 import scala.collection.mutable.{Map => SMutableMap}
 import org.scala_tools.javautils.s2j.{SMapWrapper, SMutableMapWrapper}
 import java.util.{Collection, HashMap, Map, Iterator}
-import JImplicits._
+import org.scala_tools.javautils.Implicits._
 
 
 
@@ -60,6 +60,9 @@ class RichJMap[K, V](map: Map[K, V]) extends MapHigherOrderFunctions[K, V, Map] 
     ++(kvs.asScala)
   }
 
+  def ++(kvs: Array[(K, V)]): Map[K, V] = {
+    ++(kvs.asJava)
+  }
 
   def asScala: SMap[K, V] = map match {
     case mw: SMapWrapper[_, _] =>

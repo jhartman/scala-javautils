@@ -37,7 +37,11 @@ trait HigherOrderCollectionFunctions[T, CollectionType[X] <: Collection[X]] {
   }
 
   def toArray(): Array[T] = {
-    toSeq.toArray
+    val collection = getNewCollection[T]
+    val iterator = getIterator
+    while(iterator.hasNext)
+      collection.add(iterator.next)
+    collection.toArray[T](new Array[T](0))
   }
 
   def elements(): Iterator[T] = getIterator
@@ -47,7 +51,7 @@ trait HigherOrderCollectionFunctions[T, CollectionType[X] <: Collection[X]] {
     while (iterator.hasNext) fn(iterator.next)
   }
 
-  def ++[V >: T](that: Iterable[V]): Iterable[V] = {
+  def ++[V >: T](that: Iterable[V]): CollectionType[V] = {
     // Copy everything over into a new collection
     val collection = getNewCollection[V]
     val iterator = getIterator
@@ -61,6 +65,9 @@ trait HigherOrderCollectionFunctions[T, CollectionType[X] <: Collection[X]] {
     ++(that.asJava)
   }
 
+  def ++[V >: T](that: Array[V]): Iterable[V] = {
+    ++(that.asJava)
+  }
 
   def map[V](fn: (T) => V): CollectionType[V] = {
     val iterator = getIterator
@@ -86,6 +93,15 @@ trait HigherOrderCollectionFunctions[T, CollectionType[X] <: Collection[X]] {
 
   def foldLeft[V](initial: V)(fn: (V, T) => V): V = {
     foldLeft0(getIterator, fn, initial)
+  }
+
+  def exists(pred: (T) => Boolean): Boolean = {
+    val iterator = getIterator
+    while(iterator.hasNext) {
+      if(pred(iterator.next))
+        return true
+    }
+    return false
   }
 
   def filter(pred: (T) => Boolean): CollectionType[T] = {
